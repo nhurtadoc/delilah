@@ -1,9 +1,12 @@
 const mysql = require('mysql');
+
+const dataDB = require('./properties');
+
 const mysqlconnection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database:'delilah',
+    host: dataDB.dbhost,
+    user: dataDB.dbusername,
+    password: dataDB.dbpassword,
+    database: dataDB.database,
 });
 
 mysqlconnection.connect(function(err) {

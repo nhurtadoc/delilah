@@ -14,7 +14,7 @@ router.get('/allproducts',function(req, res){
     })
 });
 
-router.post('/editproduct/:idproduct', authenticateJWT,function(req, res){
+router.put('/editproduct/:idproduct', authenticateJWT,function(req, res){
 
     const { rol } = req.user;
 
@@ -73,7 +73,7 @@ router.post('/addproduct', authenticateJWT,function(req, res){
 
 });
 
-router.post('/deleteproduct/:idproduct', authenticateJWT,function(req, res){
+router.delete('/deleteproduct/:idproduct', authenticateJWT,function(req, res){
 
     const { rol } = req.user;
 

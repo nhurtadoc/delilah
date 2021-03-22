@@ -107,7 +107,7 @@ router.post('/create-order',authenticateJWT,function(req, res){
 
 
 
-router.post('/editorder/:idorder/:state', authenticateJWT,function(req, res){
+router.put('/editorder/:idorder/:state', authenticateJWT,function(req, res){
 
     const { rol } = req.user;
 
@@ -139,7 +139,7 @@ router.post('/editorder/:idorder/:state', authenticateJWT,function(req, res){
         
 });
 
-router.post('/deleteorder/:idorder', authenticateJWT,function(req, res){
+router.delete('/deleteorder/:idorder', authenticateJWT,function(req, res){
 
     const { rol } = req.user;
 
@@ -162,7 +162,15 @@ router.post('/deleteorder/:idorder', authenticateJWT,function(req, res){
     }    
 });
 
-router.get('/selectorders',function(req, res){
+router.get('/selectorders', authenticateJWT,function(req, res){
+
+    const { rol } = req.user;
+
+    if (rol !== 'Administrador') {
+        return res.status(403).send({success: false, error: {message: 'Usuario no autorizado'}});
+    }
+
+    
     mysqlconnection.query('SELECT * FROM pedido', function(err, rows, fields){
         if(err){
             res.status(500).send({success: false, error: {message: err}});
@@ -172,14 +180,28 @@ router.get('/selectorders',function(req, res){
     })
 });
 
-router.get('/selectidOrder/:idorder',function(req, res){
+router.get('/selectidOrder/:idorder', authenticateJWT,function(req, res){
+
     const idOrder = req.params.idorder;
+    let queryOrder = 'SELECT * FROM pedido WHERE id_pedido=' + idOrder;
+
+    const {id_usuario, rol} = req.user;
+
+    if (rol !== 'Administrador') {
+        queryOrder += " AND id_usuario = "+ id_usuario;
+    }
+    
+    if(!id_usuario || !rol){
+        res.status(500).send({success: false, error: {message: 'No ha sido posible generar información'}});
+        return false;
+    }
+
     if (!idOrder){
         res.status(500).send({success: false, error: {message: 'No se encuentra el pedido'}});
         return false;
     }
 
-    mysqlconnection.query('SELECT * FROM pedido WHERE id_pedido=' + idOrder, function(err, rows, fields){
+    mysqlconnection.query(queryOrder, function(err, rows, fields){
         if(err){
             res.status(500).send({success: false, error: {message: err}});
         } else {

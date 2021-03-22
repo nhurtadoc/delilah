@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const mysqlconnection = require('../database');
 const config = require('../config');
 const { route } = require('./order');
+const authenticateJWT = require('../jwt');
 
 router.get('/allusers',function(req, res){
     mysqlconnection.query('SELECT * FROM usuario', function(err, rows, fields){
@@ -16,9 +17,16 @@ router.get('/allusers',function(req, res){
     });
 });
 
-router.get('/allusers/:id',(req, res) => {
+router.get('/allusers/:id', authenticateJWT, (req, res) => {
+    
+    const { rol } = req.user;
+
+    if (rol !== 'Administrador') {
+        return res.status(403).send({success: false, error: {message: 'Usuario no autorizado'}});
+    }
+
     const {id} = req.params;
-    console.log(id);
+    
     mysqlconnection.query('SELECT * FROM usuario WHERE id_usuario ='+id, (err, rows, fields) => {
         if(err){
             res.status(500).send({success: false, error: {message: err}});
@@ -89,6 +97,8 @@ router.get('/login',(req, res) =>{
         }
     })
 })
+
+
 
 module.exports = router;
 
